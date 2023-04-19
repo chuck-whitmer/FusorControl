@@ -18,6 +18,8 @@
 #define FUSOR_VARTYPE_FLOAT 2
 #define FUSOR_VARTYPE_BOOL 3
 
+#define FUSOR_DEFAULT_BAUD_RATE 9600  // Usually 115200
+
 struct FusorVariable
 {
   char name[FUSOR_NAME_LENGTH];
@@ -218,6 +220,11 @@ char *_fusorGetCommand(char *sCommand)
       // reestablish where the end is
       sEnd = strstr(sCommand, _fusorEnd);
       *sEnd = 0;
+	  
+	  Serial.print(sCommand);
+	  Serial.print("\n");
+	  
+	  
       return sCommand;
     }
   }
@@ -680,13 +687,13 @@ void fusorAddVariable(const char *name, int type)
 // default init with high baud rate and 10 updates/s
 void fusorInit(const char *name)
 {
-  fusorInitWithBaudRate(name, 115200, 100);
+  fusorInitWithBaudRate(name, FUSOR_DEFAULT_BAUD_RATE, 100);
 }
 
 // init with high baud rate and custom update interval
 void fusorInit(const char *name, int updateInterval)
 {
-  fusorInitWithBaudRate(name, 115200, updateInterval);
+  fusorInitWithBaudRate(name, FUSOR_DEFAULT_BAUD_RATE, updateInterval);
 }
 
 // init with custom everything

@@ -7,12 +7,12 @@
 #include "fusor.h"
 #include <Servo.h>
 
-#define SOL 15 // digital out pin for solenoid
+#define SOL 4 // digital out pin for solenoid
 
 Servo needlevalveservo;
-int MIN_MS = 650.0f;
-int MAX_MS = 2400.0f;
-int SERVO_PWM_PORT = 2;
+int MIN_MS = 1000.0f;
+int MAX_MS = 2000.0f;
+int SERVO_PWM_PORT = 3;
 
 int solstat = false;
 

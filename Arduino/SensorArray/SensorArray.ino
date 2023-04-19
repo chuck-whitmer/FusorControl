@@ -10,7 +10,11 @@
 //
 //
 
-#include "fusor.h"
+// For the Giga, a non-avr chip, they neglect to define these functions in the stdlib.h file.
+extern "C" char* ltoa(long a, char* buffer, unsigned char radix);
+extern "C" char *dtostrf (double val, signed char width, unsigned char prec, char *s);
+
+#include <fusor.h>
 
 volatile int d2 = 0; // d2 is inside enclosure
 volatile int d3 = 0; // d3 is outside enclosure
@@ -34,34 +38,30 @@ void setup(){
 
 //  Serial1.begin(9600); // PIN gamma sensor (8N1 ?)
   Serial3.begin(9600);  // Dr. Whitmer's Geiger counter (8N1)
-
-  pinMode(2, INPUT);
-  pinMode(3, INPUT);
+  // pinMode(2, INPUT);
+  // pinMode(3, INPUT);
 
   //attachInterrupt(digitalPinToInterrupt(2), ISR2, RISING);
   //attachInterrupt(digitalPinToInterrupt(3), ISR3, RISING);
   
-  
+  delay(200);
+}
+
+int info1, info2;
+void loop() {
+  delay(200);
   FUSOR_LED_ON();
   delay(200);
   FUSOR_LED_OFF();
-}
-int info1, info2;
-void loop() {
   fusorLoop();
   
   updateAll();
-  d2+=digitalRead(2);
-  d3+=digitalRead(3);  
+  // d2+=digitalRead(2);
+  // d3+=digitalRead(3);  
 }
 
 void updateAll()
 {
-//    static char text[12];
-//    static char *str = text;
-//    static float decayingAvgCps = 0;
-//    const float newFraction = 0.1;
-
     // read the latest message from the serial GC if there is one
     // format: low byte, high byte
     static bool haveByte1 = false;
@@ -84,30 +84,30 @@ void updateAll()
                 haveByte1 = false;
                 info1 = byte1;
                 info2 = byte2;
-                /*
-                   Take the 1's and 0's in the first byte, shift them to the
-                   left eight units, and then add to byte2. Assuming byte1 =
-                   10101010 and byte2 = 11100011, here's what that does. Note
-                   that multiplying by 256 is the same as doing a left bit-shift
-                   eight units
+                
+                  //  Take the 1's and 0's in the first byte, shift them to the
+                  //  left eight units, and then add to byte2. Assuming byte1 =
+                  //  10101010 and byte2 = 11100011, here's what that does. Note
+                  //  that multiplying by 256 is the same as doing a left bit-shift
+                  //  eight units
 
-                   10101010 << 8 = 1010101000000000
+                  //  10101010 << 8 = 1010101000000000
                    
-                   1010101000000000
-                   +       11100011
-                   ----------------
-                   1010101011100011
-                 */
+                  //  1010101000000000
+                  //  +       11100011
+                  //  ----------------
+                  //  1010101011100011
+                
                 fusorSetIntVariable("gc1", (byte2 * 256) + byte1);
             } else {
-                /*
-                 * if the two bytes were so far apart that we don't think they belong together
-                 * discard the lone byte, as we can't use it, and assume that the second byte
-                 * that we read was really the start of the next pair
-                 *
-                 * So, we say to take the last byte of the 'broken' pair, and assume it is the
-                 * start of the next pair
-                 */
+                
+                //  if the two bytes were so far apart that we don't think they belong together
+                //  discard the lone byte, as we can't use it, and assume that the second byte
+                //  that we read was really the start of the next pair
+                
+                //  So, we say to take the last byte of the 'broken' pair, and assume it is the
+                //  start of the next pair
+                
                 byte1 = byte2;
                 time1 = time2;
                 haveByte1 = true;
@@ -148,47 +148,47 @@ void updateAll()
     //
     // get the edge-detected Geiger counts
     //
-    long now;
-    static long lastGC = 0;
-    int d2now, d3now;
-    float interval;
+    // long now;
+    // static long lastGC = 0;
+    // int d2now, d3now;
+    // float interval;
 
-    now = millis();
-    if (now > lastGC + 1000) // update only once per second
-    {
-        lastGC = now;
-        noInterrupts();
-        d2now = d2;
-        d3now = d3;
-        d2 = 0;
-        d3 = 0;
+    // now = millis();
+    // if (now > lastGC + 1000) // update only once per second
+    // {
+    //     lastGC = now;
+    //     noInterrupts();
+    //     d2now = d2;
+    //     d3now = d3;
+    //     d2 = 0;
+    //     d3 = 0;
   
-        // Divide by two to account for double pulse ?
-        d2now /= 2;
-        d3now /= 2;
+    //     // Divide by two to account for double pulse ?
+    //     d2now /= 2;
+    //     d3now /= 2;
 
-        d2now /= 8.5;
-        d3now /= 8.5;
+    //     d2now /= 8.5;
+    //     d3now /= 8.5;
 
-        fusorSetIntVariable("gc2", d2now);
-        fusorSetIntVariable("gc3", d3now);
-    }
+    //     fusorSetIntVariable("gc2", d2now);
+    //     fusorSetIntVariable("gc3", d3now);
+    // }
 
     //
     // Read the HFM gas flow board
     //
-    static long lastHFM = 0;
-    now = millis();
-    if (now > lastHFM +100)
-    {
-        lastHFM = now;
-        // range of return values for analogRead is 0 to 1023, where 1023 is the max scale
-        // in this case, the max scale is 5 volts, so we multiply the reading by that
-        // we adjusted the 5.0 down to 4.98538 by calibrating with a known standard
-        float flowMeterReading = 4.98538 * (analogRead(5) / 1023.0);
+    // static long lastHFM = 0;
+    // now = millis();
+    // if (now > lastHFM +100)
+    // {
+    //     lastHFM = now;
+    //     // range of return values for analogRead is 0 to 1023, where 1023 is the max scale
+    //     // in this case, the max scale is 5 volts, so we multiply the reading by that
+    //     // we adjusted the 5.0 down to 4.98538 by calibrating with a known standard
+    //     float flowMeterReading = 4.98538 * (analogRead(5) / 1023.0);
     
-        fusorSetFloatVariable("hfm", flowMeterReading);
-    }
+    //     fusorSetFloatVariable("hfm", flowMeterReading);
+    // }
 }
 
 
@@ -201,3 +201,4 @@ void ISR3()
 {
   d3++;
 }
+
