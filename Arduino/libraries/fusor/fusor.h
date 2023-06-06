@@ -2,6 +2,9 @@
 // Fusor project - fusor.h - shared Arduino code
 //
 
+// Substitute UDP over wifi for serial.
+#define UDP
+
 #define FDEBUG false
 
 #define FUSOR_LED_ON() digitalWrite(LED_BUILTIN, HIGH);
@@ -50,11 +53,20 @@ static const char *_fusorEnd = "]END";
 #define FUSOR_FIX_LENGTH_CMD 4
 #define FUSOR_FIX_LENGTH_END 4
 
-#ifdef BLUETOOTH
-BluetoothSerial SerialBT;
-#define FSERIAL SerialBT
+#ifdef UDP
+ #include <udpserial.h>
+ UdpSerial Udp;
+ #define FSERIAL Udp
+ #include "c:\wifi_definition.h" 
+// char ssid[] = SECRET_SSID;    // your network SSID (name)
+// char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
+// IPAddress server;
+// long serverPort;
+#elif BLUETOOTH
+ BluetoothSerial SerialBT;
+ #define FSERIAL SerialBT
 #else
-#define FSERIAL Serial
+ #define FSERIAL Serial
 #endif
 
 void fusorStartResponse(const char *response);
@@ -62,9 +74,7 @@ void fusorAddResponse(const char *response);
 void fusorSendResponse(const char *msg);
 void fusorCancelResponse();
 
-void fusorInitWithBaudRate(const char *name, long baudRate, int updateInterval);
-void fusorInit(const char *name, int updateInterval);
-void fusorInit(const char *name);
+void fusorInit(const char *name, int updateInterval=100);
 void fusorLoop();
 void fusorForceUpdate();
 
@@ -220,10 +230,6 @@ char *_fusorGetCommand(char *sCommand)
       // reestablish where the end is
       sEnd = strstr(sCommand, _fusorEnd);
       *sEnd = 0;
-	  
-	  Serial.print(sCommand);
-	  Serial.print("\n");
-	  
 	  
       return sCommand;
     }
@@ -684,25 +690,18 @@ void fusorAddVariable(const char *name, int type)
   fusorNumVars++;
 }
 
-// default init with high baud rate and 10 updates/s
-void fusorInit(const char *name)
-{
-  fusorInitWithBaudRate(name, FUSOR_DEFAULT_BAUD_RATE, 100);
-}
+//
+// fusorInit
+//
 
-// init with high baud rate and custom update interval
 void fusorInit(const char *name, int updateInterval)
 {
-  fusorInitWithBaudRate(name, FUSOR_DEFAULT_BAUD_RATE, updateInterval);
-}
-
-// init with custom everything
-void fusorInitWithBaudRate(const char *name, long baudRate, int updateInterval)
-{
-#ifdef BLUETOOTH
+#ifdef UDP
+  UdpSerial.begin();
+#elif BLUETOOTH
   SerialBT.begin(name);
 #else
-  Serial.begin(baudRate);
+  Serial.begin(FUSOR_DEFAULT_BAUD_RATE);
 #endif
 
   // light for hope
@@ -718,7 +717,7 @@ void fusorInitWithBaudRate(const char *name, long baudRate, int updateInterval)
 }
 
 //
-// loop
+// fusorLoop
 //
 
 void fusorLoop()
