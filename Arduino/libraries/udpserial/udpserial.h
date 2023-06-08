@@ -32,10 +32,11 @@ public:
 	}
 	
 	bool begin();
-	void write(const char *buffer, long n);
+	void write(const uint8_t *buffer, long n);
 	int available();
 	char read();
-	
+	int read(char *buffer, int n);
+
 	void printWifiData();
 	void printCurrentNet();
 	void printMacAddress(byte mac[]);

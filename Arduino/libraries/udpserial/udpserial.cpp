@@ -35,7 +35,7 @@ bool UdpSerial::begin()
   return Udp.begin(localPort);
 }
 
-void UdpSerial::write(const char *buffer, long n)
+void UdpSerial::write(const uint8_t *buffer, long n)
 {
 	Udp.beginPacket(server, serverPort);
 	Udp.write(buffer, n);
@@ -63,6 +63,19 @@ char UdpSerial::read()
 		return *nextChar++;
 	}
 	return 0;
+}
+
+int UdpSerial::read(char *buffer, int n)
+{
+  int ncopy = min(charsToServe, n-1);
+  if (ncopy > 0)
+  {
+    strncpy(buffer, nextChar, ncopy);
+    buffer[ncopy] = '\0';
+    charsToServe = 0;
+    nextChar = NULL;
+  }
+  return ncopy;
 }
 
 void UdpSerial::printWifiData() 

@@ -3,7 +3,7 @@
 //
 
 // Substitute UDP over wifi for serial.
-#define UDP
+#define UDPCOMM
 
 #define FDEBUG false
 
@@ -53,15 +53,15 @@ static const char *_fusorEnd = "]END";
 #define FUSOR_FIX_LENGTH_CMD 4
 #define FUSOR_FIX_LENGTH_END 4
 
-#ifdef UDP
+#ifdef UDPCOMM
  #include <udpserial.h>
- UdpSerial Udp;
- #define FSERIAL Udp
  #include "c:\wifi_definition.h" 
 // char ssid[] = SECRET_SSID;    // your network SSID (name)
 // char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
 // IPAddress server;
 // long serverPort;
+ UdpSerial Udp(ssid, pass, server, serverPort, true); 
+ #define FSERIAL Udp
 #elif BLUETOOTH
  BluetoothSerial SerialBT;
  #define FSERIAL SerialBT
@@ -230,7 +230,7 @@ char *_fusorGetCommand(char *sCommand)
       // reestablish where the end is
       sEnd = strstr(sCommand, _fusorEnd);
       *sEnd = 0;
-	  
+
       return sCommand;
     }
   }
@@ -696,8 +696,9 @@ void fusorAddVariable(const char *name, int type)
 
 void fusorInit(const char *name, int updateInterval)
 {
-#ifdef UDP
-  UdpSerial.begin();
+#ifdef UDPCOMM
+  Udp.begin();
+  // Serial.begin(9600); // For debugging only
 #elif BLUETOOTH
   SerialBT.begin(name);
 #else

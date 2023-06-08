@@ -27,13 +27,13 @@ void setup(){
   fusorAddVariable("gc1",FUSOR_VARTYPE_INT);
 //  fusorAddVariable("lastByte", FUSOR_VARTYPE_INT);
 //  fusorAddVariable("pin",FUSOR_VARTYPE_FLOAT);
-  fusorAddVariable("gc2",FUSOR_VARTYPE_INT);
-  fusorAddVariable("gc3",FUSOR_VARTYPE_INT);
+//  fusorAddVariable("gc2",FUSOR_VARTYPE_INT);
+//  fusorAddVariable("gc3",FUSOR_VARTYPE_INT);
   fusorAddVariable("hfm", FUSOR_VARTYPE_FLOAT);
   fusorSetIntVariable("gc1",0);
   //fusorSetFloatVariable("pin",0.0);
-  fusorSetIntVariable("gc2",0);
-  fusorSetIntVariable("gc3",0);
+//  fusorSetIntVariable("gc2",0);
+//  fusorSetIntVariable("gc3",0);
   fusorSetFloatVariable("hfm",0.0);
 
 //  Serial1.begin(9600); // PIN gamma sensor (8N1 ?)
