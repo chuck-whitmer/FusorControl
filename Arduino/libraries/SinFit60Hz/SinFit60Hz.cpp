@@ -1,3 +1,8 @@
+#include <Arduino.h>
+#include <FastTrig.h>
+#include <LinearAlgebra.h>
+#include <SinFit60Hz.h>
+
 // Accumulate - Register a data point. t in microseconds, y in your favorite units.
 
 void SinFit60Hz::Accumulate(unsigned long t, double y)

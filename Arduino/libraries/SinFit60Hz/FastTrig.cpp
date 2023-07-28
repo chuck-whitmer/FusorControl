@@ -1,3 +1,5 @@
+#include <FastTrig.h>
+
 // x is a 16.16 bit fixed point number of rotations. (Meaning 16 binary digits are to the right of the 'decimal' point.)
 
 float FastTrig::Cos(long x) 

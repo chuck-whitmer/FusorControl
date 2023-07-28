@@ -2,8 +2,11 @@
 // Fusor project - fusor.h - shared Arduino code
 //
 
-// Substitute UDP over wifi for serial.
-#define UDPCOMM
+#ifdef DEVICE_GIGA
+// For the Giga, a non-avr chip, they neglect to define these functions in the stdlib.h file.
+extern "C" char* ltoa(long a, char* buffer, unsigned char radix);
+extern "C" char *dtostrf (double val, signed char width, unsigned char prec, char *s);
+#endif
 
 #define FDEBUG false
 

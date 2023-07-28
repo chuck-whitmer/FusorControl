@@ -1,3 +1,6 @@
+#include <math.h>
+#include <LinearAlgebra.h>
+
 // CholeskyDecomposition - Factors a positive definite square matrix.
 // On return, the matrix has been replaced with a lower triangular matrix.
 // What would be the diagonal elements are returned in p.
