@@ -107,6 +107,12 @@ void fusorSetStrVariable(const char *var, char *val);
 void fusorSetFloatVariable(const char *var, float val);
 void fusorSetBoolVariable(const char *var, bool val);
 
+// command identify
+void fusorIdentify() {
+    fusorStartResponse("IDENTIFY:");
+    fusorAddResponse(fusorName);
+    fusorSendResponse(NULL);
+}
 //================
 
 //
