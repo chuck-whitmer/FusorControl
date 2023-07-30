@@ -1,16 +1,17 @@
 //
 // Fusor project code for HV-lowside Arduino
 // 
-// Adafruit - Mega 2560 => Transitioning to Giga Wifi R1
+// Adafruit - Mega 2560 => Transitioning to Giga Wifi R1 and Uno R4 Wifi
 //
 
-#define DEVICE_GIGA
+// #define DEVICE_GIGA
+#define DEVICE_UNO_WIFI
+
 // Substitute UDP over wifi for serial.
 #define UDPCOMM
 
 #include <fusor.h>
 #include <stat.h>
-//#include <LinearAlgebra.h>
 #include <SinFit60Hz.h>
 
 #define variacAdcPin 4
@@ -65,9 +66,11 @@ float rms(float a, float b)
 }
 
 #ifdef DEVICE_GIGA
-const float vRange = 3.3;
-#else
-const float vRange = 1.1;
+  const float vRange = 3.3;
+#elif defined(DEVICE_UNO_WIFI)
+  const float vRange = 5.0;
+#elif defined(DEVICE_MEGA)
+  const float vRange = 1.1;
 #endif
 
 void setup(){
@@ -76,9 +79,12 @@ void setup(){
   fusorAddVariable("nst_rms", FUSOR_VARTYPE_FLOAT);
   fusorAddVariable("cw_avg", FUSOR_VARTYPE_FLOAT);
   fusorAddVariable("cwc_avg", FUSOR_VARTYPE_FLOAT);
+  fusorIdentify();
   
-  #ifndef DEVICE_GIGA
-  analogReference(INTERNAL1V1); // Mega ADCs compare to 1.1v
+  #ifdef DEVICE_GIGA
+  #elif defined(DEVICE_UNO_WIFI)
+  #elif defined(DEVICE_MEGA)
+    analogReference(INTERNAL1V1); // Mega ADCs compare to 1.1v
   #endif
   nextDisplayUpdate = millis() + 1000;
 

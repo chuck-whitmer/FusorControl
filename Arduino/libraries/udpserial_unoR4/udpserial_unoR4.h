@@ -1,6 +1,7 @@
 #include <SPI.h>
-#include <WiFi.h>
-#include <WiFiUdp.h>
+
+// Uno-specific WifiS3.h
+#include <WiFiS3.h>
 
 class UdpSerial 
 {
@@ -20,7 +21,7 @@ class UdpSerial
 	WiFiUDP Udp;
 public:
 	UdpSerial(const char *_ssid, const char* _pass, 
-		IPAddress _server, long _serverPort, bool debug=false) : server(_server), serverPort(_serverPort), debug(debug)
+		IPAddress _server, long _serverPort, bool debug=true) : server(_server), serverPort(_serverPort), debug(debug)
 	{
 		// Save connection info for later use.
 		// Note that constructors don't return errors, so this must succeed.

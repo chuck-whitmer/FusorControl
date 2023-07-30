@@ -57,7 +57,11 @@ static const char *_fusorEnd = "]END";
 #define FUSOR_FIX_LENGTH_END 4
 
 #ifdef UDPCOMM
- #include <udpserial.h>
+ #ifdef DEVICE_GIGA
+  #include <udpserial_giga.h>
+ #elif defined(DEVICE_UNO_WIFI)
+  #include <udpserial_unoR4.h>
+ #endif   
  #include "c:\wifi_definition.h" 
 // char ssid[] = SECRET_SSID;    // your network SSID (name)
 // char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)

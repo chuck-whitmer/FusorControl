@@ -1,27 +1,23 @@
 //
-// Fusor project code for HV-lowside Arduino
+// Fusor project code for HV-lowside1 Arduino - Just Variac
 // 
-// Adafruit - Mega 2560 => Transitioning to Giga Wifi R1
+// Adafruit - Mega 2560 => Transitioning to Giga Wifi R1 and Uno R4 Wifi
 //
 
-#define DEVICE_GIGA
+// #define DEVICE_GIGA
+#define DEVICE_UNO_WIFI
+// #define DEVICE_MEGA
+
 // Substitute UDP over wifi for serial.
 #define UDPCOMM
 
 #include <fusor.h>
 #include <stat.h>
-//#include <LinearAlgebra.h>
 #include <SinFit60Hz.h>
 
 #define variacAdcPin 0
-// #define nstAdcPin 5
-// #define cwAdcPin 6
-// #define cwCurrentAdcPin 1
 
 SinFit60Hz variacOutputFitter = SinFit60Hz();
-// SinFit60Hz nstOutputFitter = SinFit60Hz();
-// Fusor::stat cwOutput;
-// Fusor::stat cwCurrent;
 
 long nextDisplayUpdate;
 
@@ -32,11 +28,6 @@ const float VARIAC_R1 = 10.83 * 1000;
 const float VARIAC_R2 = 88.6 * 1000;
 const float VARIAC_R3 = 3.23 * 1000000;
 
-// const float NST_R1 = 10.82 * 1000;
-// const float NST_R2 = 89.3 * 1000;
-// const float NST_R3 = 200 * 1000000;
-
-
 float DividerMultiplier(float r1, float r2, float rS, float rL)
 {
   float r3 = rS + rL;
@@ -45,8 +36,6 @@ float DividerMultiplier(float r1, float r2, float rS, float rL)
   return rr123 / rr12s;
 }
 
-// float cwOffset = 1.017; // DividerOffset(330.0, 82.0, 10e3, 400e6, 5.0); // Was 0.995, but measured 1.017
-// float cwMultiplier = DividerMultiplier(330.0, 82.0, 10e3, 400e6) / 1000.0; // Make it KV.
 const float currentResistor = 100; // 100 Ohm
 
 float f(float r1, float r2, float r3)
@@ -65,21 +54,24 @@ float rms(float a, float b)
 }
 
 #ifdef DEVICE_GIGA
-const float vRange = 3.3;
-#else
-const float vRange = 1.1;
+  const float vRange = 3.3;
+#elif defined(DEVICE_UNO_WIFI)
+  const float vRange = 5.0;
+#elif defined(DEVICE_MEGA)
+  const float vRange = 1.1;
 #endif
 
 void setup(){
-  fusorInit("HV-LOWSIDE"); //Fusor device name, variables, num variables
+  fusorInit("HV-LOWSIDE1"); //Fusor device name, variables, num variables
   fusorAddVariable("variac_rms", FUSOR_VARTYPE_FLOAT);
-  // fusorAddVariable("nst_rms", FUSOR_VARTYPE_FLOAT);
-  // fusorAddVariable("cw_avg", FUSOR_VARTYPE_FLOAT);
-  // fusorAddVariable("cwc_avg", FUSOR_VARTYPE_FLOAT);
   fusorIdentify();
-  #ifndef DEVICE_GIGA
-  analogReference(INTERNAL1V1); // Mega ADCs compare to 1.1v
+
+  #ifdef DEVICE_GIGA
+  #elif defined(DEVICE_UNO_WIFI)
+  #elif defined(DEVICE_MEGA)
+    analogReference(INTERNAL1V1); // Mega ADCs compare to 1.1v
   #endif
+
   nextDisplayUpdate = millis() + 1000;
 
   FUSOR_LED_ON();
@@ -104,18 +96,6 @@ float readVoltage(int pin)
 void updateAll() {
   float variacReading = readVoltage(variacAdcPin);
   variacOutputFitter.Accumulate(micros(), v(variacReading, VARIAC_R1, VARIAC_R2, VARIAC_R3));   
-
-  // float nstReading = readVoltage(nstAdcPin);
-  // nstOutputFitter.Accumulate(micros(), v(nstReading, NST_R1, NST_R2, NST_R3)/1000); //in KV 
-
-  // #define HACK_OFFSET 0.75
-  // float cwReading = readVoltage(cwAdcPin);
-  // cwOutput.accumulate((cwReading - cwOffset) * cwMultiplier - HACK_OFFSET); // In KV.
-
-  // Read the CW current
-  // Measured as voltage over 100 Ohm resistor
-  // float cwCurrentReading = readVoltage(cwCurrentAdcPin); // readConstantTime(cwCurrentAdcPin, 0, 1000.0/currentResistor); // in mA
-  // cwCurrent.accumulate((cwCurrentReading) * (1000.0/currentResistor));
 }
 
 void UpdateDisplay()
@@ -126,19 +106,5 @@ void UpdateDisplay()
   float variacRMS = rms(variacA, variacB);
   variacOutputFitter.Reset();
   
-  // double nstA, nstB, nstC;
-  // nstOutputFitter.SolveFit(nstA, nstB, nstC);
-  
-  // float nstRMS = rms(nstA, nstB);
-  // nstOutputFitter.Reset();
-
-  // float cwAverage = cwOutput.average();
-  // float cwcAverage = cwCurrent.average();
-  // cwOutput.Reset();
-  // cwCurrent.Reset();
-
   fusorSetFloatVariable("variac_rms", variacRMS);
-  // fusorSetFloatVariable("nst_rms", nstRMS);
-  // fusorSetFloatVariable("cw_avg", cwAverage);
-  // fusorSetFloatVariable("cwc_avg", cwcAverage);
 }
