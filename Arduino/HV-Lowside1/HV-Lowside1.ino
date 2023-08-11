@@ -24,29 +24,27 @@ long nextDisplayUpdate;
 const int captureCycles = 6;
 const long captureTimeUs = (long)(1.0 / 60.0 * captureCycles * 1000000.0);
 
-const float VARIAC_R1 = 10.83 * 1000;
-const float VARIAC_R2 = 88.6 * 1000;
-const float VARIAC_R3 = 3.23 * 1000000;
+// const float VARIAC_R1 = 10.83 * 1000;
+// const float VARIAC_R2 = 88.6 * 1000;
+// const float VARIAC_R3 = 3.23 * 1000000;
 
-float DividerMultiplier(float r1, float r2, float rS, float rL)
-{
-  float r3 = rS + rL;
-  float rr123 = r1*r2 + r1*r3 + r2*r3;
-  float rr12s = r1*r2 + r1*rS + r2*rS;
-  return rr123 / rr12s;
-}
+// float DividerMultiplier(float r1, float r2, float rS, float rL)
+// {
+//   float r3 = rS + rL;
+//   float rr123 = r1*r2 + r1*r3 + r2*r3;
+//   float rr12s = r1*r2 + r1*rS + r2*rS;
+//   return rr123 / rr12s;
+// }
 
-const float currentResistor = 100; // 100 Ohm
+// float f(float r1, float r2, float r3)
+// {
+//   return (r1*r2)/(r1*r3+r1*r2+r2*r3);
+// }
 
-float f(float r1, float r2, float r3)
-{
-  return (r1*r2)/(r1*r3+r1*r2+r2*r3);
-}
-
-float v(float a, float r1, float r2, float r3)
-{
-  return (a - 5*f(r1,r3,r2))/f(r1,r2,r3);
-}
+// float v(float a, float r1, float r2, float r3)
+// {
+//   return (a - 5*f(r1,r3,r2))/f(r1,r2,r3);
+// }
 
 float rms(float a, float b)
 {
@@ -93,9 +91,12 @@ float readVoltage(int pin)
   return analogRead(pin)/1023.0*vRange;
 }
 
+const float variacOffset = 0.550;
+const float variacFactor = 426.7;
+
 void updateAll() {
   float variacReading = readVoltage(variacAdcPin);
-  variacOutputFitter.Accumulate(micros(), v(variacReading, VARIAC_R1, VARIAC_R2, VARIAC_R3));   
+  variacOutputFitter.Accumulate(micros(), (variacReading-variacOffset)*variacFactor);   
 }
 
 void UpdateDisplay()
